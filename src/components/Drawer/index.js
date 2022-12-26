@@ -1,13 +1,16 @@
 import React from "react";
 import axios from "axios";
 
-import Info from "./Info";
-import AppContext from "../context";
+import Info from "../Info";
 
-const delay=(ms)=>new Promise((resolve)=>setTimeout(resolve,ms))
-    
-function Drawer({ onClose, onRemove, items = [] }) {
-    const { cartItems, setCartItems } = React.useContext(AppContext);
+import { useCart } from "../../hooks/useCart";
+
+import styles from  './Drawer.module.scss'
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function Drawer({ onClose, onRemove, items = [] , opened }) {
+    const { cartItems, setCartItems, totalPrice } = useCart();
     const [orderId, setOrderId] = React.useState(null);
     const [isOrderComplete, setIsOrderComplete] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
@@ -27,20 +30,20 @@ function Drawer({ onClose, onRemove, items = [] }) {
             for (let i = 0; i < cartItems.length; i++) {
                 const item = cartItems[i];
                 await axios.delete(
-                    "https://63985dc6044fa481d69abb75.mockapi.io/cart/" + item.id
-               
+                    "https://63985dc6044fa481d69abb75.mockapi.io/cart/" +
+                        item.id
                 );
                 await delay(1000);
             }
         } catch (error) {
-            alert('Ошибка при создании заказа :o');
+            alert("Ошибка при создании заказа :o");
         }
         setIsLoading(false);
     };
 
     return (
-        <div className="overlay">
-            <div className="drawer">
+        <div className={`${styles.overlay}  ${opened ? styles.overlayVisible : ""}`}>
+            <div className={styles.drawer}>
                 <h2 className="d-flex justify-between mb-30">
                     Корзина{" "}
                     <img
@@ -53,18 +56,16 @@ function Drawer({ onClose, onRemove, items = [] }) {
 
                 {items.length > 0 ? (
                     <div className="d-flex flex-column flex">
-                        <div className="items">
+                        <div className="items flex">
                             {items.map((obj) => (
                                 <div
                                     key={obj.id}
-                                    className="cartItem d-flex align-center mb-20"
-                                >
+                                    className="cartItem d-flex align-center mb-20">
                                     <div
                                         style={{
                                             backgroundImage: `url(${obj.imageUrl})`,
                                         }}
-                                        className="cartItemImg"
-                                    ></div>
+                                        className="cartItemImg"></div>
 
                                     <div className="mr-20 flex ">
                                         <p className="mb-5">{obj.title}</p>
@@ -84,19 +85,21 @@ function Drawer({ onClose, onRemove, items = [] }) {
                                 <li>
                                     <span>Итого:</span>
                                     <div></div>
-                                    <b>21 498 руб. </b>
+                                    <b>{totalPrice} руб. </b>
                                 </li>
                                 <li>
                                     <span>Налог 5%:</span>
                                     <div></div>
-                                    <b>1074 руб. </b>
+                                    <b>
+                                        {Math.round((totalPrice / 100) * 1)}{" "}
+                                        руб.{" "}
+                                    </b>
                                 </li>
                             </ul>
                             <button
                                 disabled={isLoading}
                                 onClick={onClickOrder}
-                                className="greenButton"
-                            >
+                                className="greenButton">
                                 Оформить заказ{" "}
                                 <img
                                     src="/img/arrow.svg"

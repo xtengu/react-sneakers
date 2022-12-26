@@ -7,6 +7,7 @@ import styles from "./Card.module.scss";
 
 function Card({
     id,
+  
     title,
     imageUrl,
     price,
@@ -17,13 +18,14 @@ function Card({
 }) {
     const { isItemAdded } = React.useContext(AppContext);
     const [isFavorite, setIsFavorite] = React.useState(favorited);
+    const obj = { id, parentId:id, title, imageUrl, price };
 
     const onClickPlus = () => {
-        onPlus({ id, title, imageUrl, price });
+        onPlus(obj);
     };
 
     const onClickFavorite = () => {
-        onFavorite({ id, title, imageUrl, price });
+        onFavorite(obj);
         setIsFavorite(!isFavorite);
     };
 
@@ -36,8 +38,7 @@ function Card({
                     height={250}
                     viewBox="0 0 150 265"
                     backgroundColor="#f3f3f3"
-                    foregroundColor="#ecebeb"
-                >
+                    foregroundColor="#ecebeb">
                     <rect
                         x="1"
                         y="0"
@@ -83,19 +84,20 @@ function Card({
                 </ContentLoader>
             ) : (
                 <>
-                    <div
-                        className={styles.favorite}
-                        onClick={onClickFavorite}
-                    >
-                        <img
-                            src={
-                                isFavorite
-                                    ? "/img/liked.svg"
-                                    : "/img/unliked.svg"
-                            }
-                            alt="Unliked"
-                        />
-                    </div>
+                    {onFavorite && (
+                        <div
+                            className={styles.favorite}
+                            onClick={onClickFavorite}>
+                            <img
+                                src={
+                                    isFavorite
+                                        ? "/img/liked.svg"
+                                        : "/img/unliked.svg"
+                                }
+                                alt="Unliked"
+                            />
+                        </div>
+                    )}
 
                     <img
                         width="100%"
@@ -110,16 +112,18 @@ function Card({
                             <b>{price} руб.</b>
                         </div>
 
-                        <img
-                            className={styles.plus}
-                            onClick={onClickPlus}
-                            src={
-                                isItemAdded(id)
-                                    ? "/img/btn-cheked.svg"
-                                    : "/img/btn-plus.svg"
-                            }
-                            alt="Plus"
-                        />
+                        {onPlus && (
+                            <img
+                                className={styles.plus}
+                                onClick={onClickPlus}
+                                src={
+                                    isItemAdded(id)
+                                        ? "/img/btn-cheked.svg"
+                                        : "/img/btn-plus.svg"
+                                }
+                                alt="Plus"
+                            />
+                        )}
                     </div>
                 </>
             )}
